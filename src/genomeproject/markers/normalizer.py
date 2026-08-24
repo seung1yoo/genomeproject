@@ -92,14 +92,21 @@ def normalize_markers(markers: list[Marker], fasta_path: str | Path) -> list[Mar
     executable = shutil.which("bcftools")
     if not executable:
         raise RuntimeError("bcftools is required for marker normalization but was not found in PATH")
+    with pysam.FastaFile(str(fasta_path)) as reference:
+        reference_lengths = dict(zip(reference.references, reference.lengths))
+    resolved_markers = [
+        (marker, resolve_contig(marker.chrom, set(reference_lengths))) for marker in markers
+    ]
     with tempfile.TemporaryDirectory(prefix="genomeproject-markers-") as temp_dir:
         source = Path(temp_dir) / "markers.vcf"
         with source.open("w", encoding="utf-8") as handle:
             handle.write("##fileformat=VCFv4.2\n")
+            for contig in dict.fromkeys(contig for _, contig in resolved_markers):
+                handle.write(f"##contig=<ID={contig},length={reference_lengths[contig]}>\n")
             handle.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
-            for marker in markers:
+            for marker, contig in resolved_markers:
                 handle.write(
-                    f"{marker.chrom}\t{marker.pos}\t{marker.marker_id}\t{marker.ref}\t{marker.alt}\t.\t.\t.\n"
+                    f"{contig}\t{marker.pos}\t{marker.marker_id}\t{marker.ref}\t{marker.alt}\t.\t.\t.\n"
                 )
         process = subprocess.run(
             [executable, "norm", "-f", str(fasta_path), "-m", "-any", str(source)],

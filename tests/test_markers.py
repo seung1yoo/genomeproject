@@ -6,7 +6,7 @@ import pytest
 from genomeproject.markers.frequency import aggregate_frequencies
 from genomeproject.markers.gvcf_reader import read_sample_gvcf
 from genomeproject.markers.models import Marker
-from genomeproject.markers.normalizer import read_markers, validate_reference
+from genomeproject.markers.normalizer import normalize_markers, read_markers, validate_reference
 
 
 def make_reference(tmp_path: Path) -> Path:
@@ -85,3 +85,12 @@ def test_marker_table_and_reference_validation(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="Only autosomes"):
         read_markers(marker_table)
+
+
+def test_normalize_markers_defines_reference_contig(tmp_path: Path) -> None:
+    fasta = make_reference(tmp_path)
+    markers = [Marker("M1", "1", 5, "A", "G")]
+
+    normalized = normalize_markers(markers, fasta)
+
+    assert normalized == [Marker("M1", "chr1", 5, "A", "G")]
