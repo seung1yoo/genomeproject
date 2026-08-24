@@ -1,0 +1,17 @@
+reference:
+  build: GRCh38
+  fasta: /path/to/GRCh38.fa
+
+inventory:
+  expected_data_types: [cnv, cram, dtc, gvcf, sv, vcf]
+
+markers:
+  min_gq: 20
+  min_dp: 8
+  autosomes_only: true
+  normalize: true
+  workers: 4
+
+output:
+  root: results
+

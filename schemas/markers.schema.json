@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GRCh38 marker row",
+  "type": "object",
+  "required": ["marker_id", "chrom", "pos", "ref", "alt"],
+  "properties": {
+    "marker_id": {"type": "string", "minLength": 1},
+    "chrom": {"type": "string", "minLength": 1},
+    "pos": {"type": "integer", "minimum": 1},
+    "ref": {"type": "string", "pattern": "^[ACGTN]+$"},
+    "alt": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
+

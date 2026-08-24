@@ -1,0 +1,11 @@
+name: genomeproject
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - bcftools>=1.19
+  - samtools>=1.19
+  - pip
+  - pip:
+      - -e .[dev]
