@@ -304,7 +304,7 @@ column -s, -t \
   results/adiponectin-markers-YYYYMMDD/marker_frequency/marker_frequency.csv
 ```
 
-샘플×마커별 GT, AC, AN, AF, DP, GQ와 QC 상태는 다음 파일에서 확인합니다.
+샘플×마커별 GT, AC, AN, AF, DP, GQ, AD와 QC 상태는 다음 파일에서 확인합니다.
 
 ```bash
 column -s, -t \
@@ -312,7 +312,7 @@ column -s, -t \
   | head -20
 ```
 
-`sample_marker_stats`의 `AC`는 해당 샘플에서 대상 ALT가 관찰된 수(0, 1, 2), `AN`은 실제 호출된 allele 수, `AF`는 샘플 단위 `AC / AN`입니다. no-call이면 `AN=0`, `AF`는 비어 있습니다.
+`sample_marker_stats`의 `AC`는 해당 샘플에서 대상 ALT가 관찰된 수(0, 1, 2), `AN`은 실제 호출된 allele 수, `AF`는 샘플 단위 `AC / AN`입니다. `AD`는 gVCF FORMAT의 원본 allele depth 배열, `ref_ad`는 REF depth, `target_ad`는 대상 ALT가 실제 record에 있을 때의 depth입니다. gVCF에 AD가 없거나 대상 ALT가 record에 없으면 해당 값은 비어 있습니다. no-call이면 `AN=0`, `AF`도 비어 있습니다.
 
 샘플·마커별 상태와 QC 제외 사유를 집계합니다.
 
@@ -347,7 +347,7 @@ PY
 - `status_counts`: 판독 상태별 샘플 수
 - `qc_exclusion_counts`: 낮은 GQ/DP 등 QC 제외 사유별 샘플 수
 - `audit_by_chrom/`: 샘플·마커별 GT, GQ, DP, dosage 및 판독/제외 사유
-- `sample_marker_stats.csv`/`.parquet`: 샘플×마커별 GT, AC, AN, AF, DP, GQ 및 QC 상태
+- `sample_marker_stats.csv`/`.parquet`: 샘플×마커별 GT, AC, AN, AF, DP, GQ, AD 및 QC 상태
 
 gVCF에 record가 없거나 no-call이면 homozygous reference로 간주하지 않습니다. `<NON_REF>` reference block이 실제 마커 위치를 포함하고 GT가 호출된 경우에만 대상 ALT dosage 0으로 계산합니다.
 

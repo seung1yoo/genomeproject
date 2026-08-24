@@ -28,6 +28,9 @@ class GenotypeObservation:
     gt: str | None
     gq: int | None
     dp: int | None
+    ad: str | None
+    ref_ad: int | None
+    target_ad: int | None
     allele_number: int
     target_dosage: int
     raw_called: bool

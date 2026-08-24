@@ -26,11 +26,12 @@ def make_gvcf(tmp_path: Path, sample: str, low_gq: bool = False) -> Path:
         "##FORMAT=<ID=GT,Number=1,Type=String,Description=Genotype>\n"
         "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=GenotypeQuality>\n"
         "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=Depth>\n"
+        "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=AlleleDepth>\n"
         f"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{sample}\n"
-        "chr1\t1\t.\tC\t<NON_REF>\t.\t.\tEND=9\tGT:GQ:DP\t0/0:40:20\n"
-        f"chr1\t10\t.\tA\tG,<NON_REF>\t.\t.\t.\tGT:GQ:DP\t0/1:{gq}:30\n"
-        "chr1\t11\t.\tA\tT,<NON_REF>\t.\t.\t.\tGT:GQ:DP\t0/1:50:30\n"
-        "chr1\t12\t.\tA\t<NON_REF>\t.\t.\tEND=20\tGT:GQ:DP\t0/0:10:30\n",
+        "chr1\t1\t.\tC\t<NON_REF>\t.\t.\tEND=9\tGT:GQ:DP:AD\t0/0:40:20:20,0\n"
+        f"chr1\t10\t.\tA\tG,<NON_REF>\t.\t.\t.\tGT:GQ:DP:AD\t0/1:{gq}:30:15,15,0\n"
+        "chr1\t11\t.\tA\tT,<NON_REF>\t.\t.\t.\tGT:GQ:DP:AD\t0/1:50:30:14,16,0\n"
+        "chr1\t12\t.\tA\t<NON_REF>\t.\t.\tEND=20\tGT:GQ:DP:AD\t0/0:10:30:30,0\n",
         encoding="utf-8",
     )
     compressed = tmp_path / f"{sample}.g.vcf.gz"
@@ -79,9 +80,14 @@ def test_direct_gvcf_read_and_frequency(tmp_path: Path) -> None:
     assert details[("S1", "target")]["af"] == 0.5
     assert details[("S1", "target")]["dp"] == 30
     assert details[("S1", "target")]["gq"] == 40
+    assert details[("S1", "target")]["ad"] == "15,15,0"
+    assert details[("S1", "target")]["ref_ad"] == 15
+    assert details[("S1", "target")]["target_ad"] == 15
+    assert details[("S1", "ref")]["target_ad"] is None
     assert details[("S2", "target")]["qc_called"] is False
     assert details[("S1", "absent")]["an"] == 0
     assert details[("S1", "absent")]["af"] is None
+    assert details[("S1", "absent")]["ad"] is None
 
 
 def test_marker_table_and_reference_validation(tmp_path: Path) -> None:

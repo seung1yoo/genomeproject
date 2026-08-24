@@ -28,6 +28,15 @@ def _gt_text(gt: tuple[int | None, ...] | None, phased: bool) -> str | None:
     return separator.join("." if allele is None else str(allele) for allele in gt)
 
 
+def _allele_depths(value: Any) -> tuple[int | None, ...]:
+    if value is None:
+        return ()
+    try:
+        return tuple(_integer(item) for item in value)
+    except TypeError:
+        return ()
+
+
 def _observation(
     sample_id: str,
     marker: Marker,
@@ -41,6 +50,14 @@ def _observation(
     gt = tuple(sample_call.get("GT") or ()) if sample_call is not None else ()
     gq = _integer(sample_call.get("GQ")) if sample_call is not None else None
     dp = _integer(sample_call.get("DP")) if sample_call is not None else None
+    allele_depths = _allele_depths(sample_call.get("AD")) if sample_call is not None else ()
+    ad = ",".join("." if value is None else str(value) for value in allele_depths) or None
+    ref_ad = allele_depths[0] if allele_depths else None
+    target_ad = (
+        allele_depths[target_index]
+        if target_index is not None and target_index >= 0 and target_index < len(allele_depths)
+        else None
+    )
     phased = bool(getattr(sample_call, "phased", False)) if sample_call is not None else False
     called_alleles = [allele for allele in gt if allele is not None]
     raw_called = bool(gt) and len(called_alleles) == len(gt)
@@ -68,6 +85,9 @@ def _observation(
         gt=_gt_text(gt, phased) if gt else None,
         gq=gq,
         dp=dp,
+        ad=ad,
+        ref_ad=ref_ad,
+        target_ad=target_ad,
         allele_number=len(called_alleles) if raw_called else 0,
         target_dosage=dosage if raw_called else 0,
         raw_called=raw_called,
