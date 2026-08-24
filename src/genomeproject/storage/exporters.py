@@ -24,10 +24,7 @@ def csv_to_parquet(csv_path: str | Path, parquet_path: str | Path) -> Path:
     output = Path(parquet_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with duckdb.connect() as connection:
-        connection.execute(
-            "COPY (SELECT * FROM read_csv_auto(? , header=true)) TO ? (FORMAT PARQUET)",
-            [str(source), str(output)],
-        )
+        connection.read_csv(str(source), header=True).write_parquet(str(output))
     return output
 
 
