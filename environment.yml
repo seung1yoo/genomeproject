@@ -6,6 +6,13 @@ dependencies:
   - python=3.11
   - bcftools>=1.19
   - samtools>=1.19
+  # Install compiled dependencies from conda binaries. On older Linux hosts,
+  # pip may otherwise fall back to an unsupported local C/C++ build.
+  - python-duckdb>=1.0,<2
+  - pysam>=0.22,<0.24
+  - pyyaml>=6,<7
+  - pytest>=8,<9
+  - pytest-cov>=5,<7
   - pip
   - pip:
       - -e .[dev]

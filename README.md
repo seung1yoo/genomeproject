@@ -45,6 +45,13 @@ genomeproject markers frequency \
   --run-id markers-20260824
 ```
 
+DuckDB와 pysam은 오래된 Linux 컴파일러에서도 소스 빌드가 발생하지 않도록 conda-forge 바이너리로 설치합니다. 이전 환경 생성이 중간에 실패했다면 해당 환경을 제거한 후 다시 생성하십시오.
+
+```bash
+conda env remove -n genomeproject
+conda env create -f environment.yml
+```
+
 `--skip-normalization`은 이미 정규화된 마커를 사용하거나 `bcftools`가 없는 개발 테스트에서만 사용합니다.
 
 ## 결과 해석
