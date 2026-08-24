@@ -87,13 +87,13 @@ S001	gvcf	/data/wgs/S001.hard-filtered.gvcf.gz
 
 `data_type`은 `cnv`, `cram`, `dtc`, `gvcf`, `sv`, `vcf` 중 하나입니다. 같은 샘플의 파일에는 같은 `sample_id`를 사용합니다.
 
-### IPMI 디렉터리 예시
+### 디렉터리 구조 예시
 
 다음 구조처럼 CRAM과 gVCF 파일명이 sample ID로 시작하는 경우:
 
 ```text
-/bc_storage/BioResources/IPMI/cram/22121301000110.cram
-/bc_storage/BioResources/IPMI/gvcf/22121301000110.hard-filtered.gvcf.gz
+/data/project/cram/S001.cram
+/data/project/gvcf/S001.hard-filtered.gvcf.gz
 ```
 
 manifest를 자동 생성할 수 있습니다.
@@ -104,7 +104,7 @@ mkdir -p data/manifests
 {
   printf 'sample_id\tdata_type\tpath\n'
 
-  find /bc_storage/BioResources/IPMI/cram \
+  find /data/project/cram \
     -type f -name "*.cram" \
     | sort \
     | awk -F/ '{
@@ -113,7 +113,7 @@ mkdir -p data/manifests
         print sample "\tcram\t" $0
       }'
 
-  find /bc_storage/BioResources/IPMI/gvcf \
+  find /data/project/gvcf \
     -type f -name "*.gvcf.gz" \
     | sort \
     | awk -F/ '{
@@ -229,14 +229,14 @@ marker-1	chr1	10001	A	G
 - rsID는 locus 식별자이므로 REF/ALT를 별도로 확인해야 합니다.
 - `marker_id` 및 `chrom:pos:ref:alt` 조합은 중복될 수 없습니다.
 
-### ADIPOQ 마커 3개 예시
+### 마커 파일 생성 예시
 
-아래 값은 GRCh38의 VCF식 1-based 좌표입니다.
+아래 placeholder는 실제 분석 대상의 GRCh38 VCF식 1-based 좌표와 REF/ALT로 교체해야 합니다.
 
 ```bash
 mkdir -p data/markers
 
-printf 'marker_id\tchrom\tpos\tref\talt\nrs17300539\tchr3\t186841671\tG\tA\nrs1501299\tchr3\t186853334\tG\tT\nrs266729\tchr3\t186841685\tC\tG\n' \
+printf 'marker_id\tchrom\tpos\tref\talt\nmarker-1\tchr1\t10001\tA\tG\n' \
   > data/markers/targets.tsv
 ```
 
@@ -272,7 +272,7 @@ time genomeproject markers frequency \
   --manifest data/manifests/sample_files.tsv \
   --markers data/markers/targets.tsv \
   --config configs/local.yaml \
-  --run-id adiponectin-markers-YYYYMMDD
+  --run-id target-markers-YYYYMMDD
 ```
 
 tmux 세션에서 빠져나올 때는 `Ctrl+B` 다음 `D`, 다시 접속할 때는 다음을 사용합니다.
@@ -284,7 +284,7 @@ tmux attach -t genome-markers
 주요 결과:
 
 ```text
-results/adiponectin-markers-YYYYMMDD/
+results/target-markers-YYYYMMDD/
 ├── run_config.yaml
 └── marker_frequency/
     ├── marker_frequency.csv
@@ -301,14 +301,14 @@ results/adiponectin-markers-YYYYMMDD/
 
 ```bash
 column -s, -t \
-  results/adiponectin-markers-YYYYMMDD/marker_frequency/marker_frequency.csv
+  results/target-markers-YYYYMMDD/marker_frequency/marker_frequency.csv
 ```
 
 샘플×마커별 GT, AC, AN, AF, DP, GQ, AD와 QC 상태는 다음 파일에서 확인합니다.
 
 ```bash
 column -s, -t \
-  results/adiponectin-markers-YYYYMMDD/marker_frequency/sample_marker_stats.csv \
+  results/target-markers-YYYYMMDD/marker_frequency/sample_marker_stats.csv \
   | head -20
 ```
 
@@ -320,7 +320,7 @@ column -s, -t \
 python - <<'PY'
 import duckdb
 
-path = "results/adiponectin-markers-YYYYMMDD/marker_frequency/audit_by_chrom/chrom=chr3/observations.parquet"
+path = "results/target-markers-YYYYMMDD/marker_frequency/audit_by_chrom/chrom=chr1/observations.parquet"
 with duckdb.connect() as con:
     rows = con.execute("""
         SELECT status, qc_exclusion, count(*) AS n
