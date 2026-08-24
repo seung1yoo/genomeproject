@@ -3,7 +3,7 @@ from pathlib import Path
 import pysam
 import pytest
 
-from genomeproject.markers.frequency import aggregate_frequencies
+from genomeproject.markers.frequency import aggregate_frequencies, sample_marker_stats
 from genomeproject.markers.gvcf_reader import read_sample_gvcf
 from genomeproject.markers.models import Marker
 from genomeproject.markers.normalizer import normalize_markers, read_markers, validate_reference
@@ -68,6 +68,20 @@ def test_direct_gvcf_read_and_frequency(tmp_path: Path) -> None:
     assert frequencies["target"]["qc_ac"] == 1
     assert frequencies["target"]["qc_an"] == 2
     assert frequencies["absent"]["raw_an"] == 0
+
+    details = {
+        (row["sample_id"], row["marker_id"]): row
+        for row in sample_marker_stats(observations)
+    }
+    assert details[("S1", "target")]["gt"] == "0/1"
+    assert details[("S1", "target")]["ac"] == 1
+    assert details[("S1", "target")]["an"] == 2
+    assert details[("S1", "target")]["af"] == 0.5
+    assert details[("S1", "target")]["dp"] == 30
+    assert details[("S1", "target")]["gq"] == 40
+    assert details[("S2", "target")]["qc_called"] is False
+    assert details[("S1", "absent")]["an"] == 0
+    assert details[("S1", "absent")]["af"] is None
 
 
 def test_marker_table_and_reference_validation(tmp_path: Path) -> None:

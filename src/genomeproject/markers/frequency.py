@@ -5,6 +5,38 @@ from collections import Counter, defaultdict
 from .models import GenotypeObservation, Marker
 
 
+def sample_marker_stats(observations: list[GenotypeObservation]) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for record in sorted(
+        observations,
+        key=lambda item: (item.sample_id, item.chrom, item.pos, item.ref, item.alt),
+    ):
+        rows.append(
+            {
+                "sample_id": record.sample_id,
+                "marker_id": record.marker_id,
+                "chrom": record.chrom,
+                "pos": record.pos,
+                "ref": record.ref,
+                "alt": record.alt,
+                "gt": record.gt,
+                "ac": record.target_dosage,
+                "an": record.allele_number,
+                "af": record.target_dosage / record.allele_number
+                if record.allele_number
+                else None,
+                "dp": record.dp,
+                "gq": record.gq,
+                "raw_called": record.raw_called,
+                "qc_called": record.qc_called,
+                "status": record.status,
+                "qc_exclusion": record.qc_exclusion,
+                "source_gvcf": record.source_gvcf,
+            }
+        )
+    return rows
+
+
 def aggregate_frequencies(
     markers: list[Marker], observations: list[GenotypeObservation]
 ) -> list[dict[str, object]]:

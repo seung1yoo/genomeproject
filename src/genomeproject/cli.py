@@ -14,7 +14,7 @@ import yaml
 from .config import AppConfig, load_config
 from .inventory.builder import build_inventory, read_manifest
 from .inventory.validator import summarize_inventory
-from .markers.frequency import aggregate_frequencies
+from .markers.frequency import aggregate_frequencies, sample_marker_stats
 from .markers.gvcf_reader import read_sample_gvcf
 from .markers.models import GenotypeObservation, Marker
 from .markers.normalizer import normalize_markers, read_markers, validate_reference
@@ -141,6 +141,10 @@ def command_markers_frequency(args: argparse.Namespace) -> int:
         csv_to_parquet(source, source.with_suffix(".parquet"))
     frequency_csv = write_csv(aggregate_frequencies(markers, observations), output_dir / "marker_frequency.csv")
     csv_to_parquet(frequency_csv, frequency_csv.with_suffix(".parquet"))
+    sample_stats_csv = write_csv(
+        sample_marker_stats(observations), output_dir / "sample_marker_stats.csv"
+    )
+    csv_to_parquet(sample_stats_csv, sample_stats_csv.with_suffix(".parquet"))
     _write_run_config(
         output_dir.parent / "run_config.yaml", _resolved_config(config, manifest_path, marker_path)
     )
