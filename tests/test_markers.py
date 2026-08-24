@@ -11,7 +11,7 @@ from genomeproject.markers.normalizer import normalize_markers, read_markers, va
 
 def make_reference(tmp_path: Path) -> Path:
     fasta = tmp_path / "GRCh38.fa"
-    fasta.write_text(">chr1\n" + "A" * 100 + "\n", encoding="utf-8")
+    fasta.write_text(">chr1\nC" + "A" * 99 + "\n", encoding="utf-8")
     pysam.faidx(str(fasta))
     return fasta
 
@@ -27,7 +27,7 @@ def make_gvcf(tmp_path: Path, sample: str, low_gq: bool = False) -> Path:
         "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=GenotypeQuality>\n"
         "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=Depth>\n"
         f"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{sample}\n"
-        "chr1\t1\t.\tA\t<NON_REF>\t.\t.\tEND=9\tGT:GQ:DP\t0/0:40:20\n"
+        "chr1\t1\t.\tC\t<NON_REF>\t.\t.\tEND=9\tGT:GQ:DP\t0/0:40:20\n"
         f"chr1\t10\t.\tA\tG,<NON_REF>\t.\t.\t.\tGT:GQ:DP\t0/1:{gq}:30\n"
         "chr1\t11\t.\tA\tT,<NON_REF>\t.\t.\t.\tGT:GQ:DP\t0/1:50:30\n"
         "chr1\t12\t.\tA\t<NON_REF>\t.\t.\tEND=20\tGT:GQ:DP\t0/0:10:30\n",

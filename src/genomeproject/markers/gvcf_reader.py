@@ -143,11 +143,16 @@ def read_sample_gvcf(
             if any(record.ref.upper() != marker.ref for record in same_position):
                 output.append(_observation(sample_id, marker, source, "REF_MISMATCH", min_gq, min_dp))
                 continue
-            callable_records = [
-                record
-                for record in records
-                if marker.ref == record.ref.upper() and any(alt in REFERENCE_ALTS for alt in (record.alts or ()))
-            ]
+            callable_records = []
+            for record in records:
+                alts = set(record.alts or ())
+                if record.pos < marker.pos:
+                    if alts and alts <= REFERENCE_ALTS:
+                        callable_records.append(record)
+                elif marker.ref == record.ref.upper() and any(
+                    alt in REFERENCE_ALTS for alt in alts
+                ):
+                    callable_records.append(record)
             if len(callable_records) != 1:
                 status = "NO_RECORD" if not records else "UNSUPPORTED_OR_AMBIGUOUS"
                 output.append(_observation(sample_id, marker, source, status, min_gq, min_dp))
