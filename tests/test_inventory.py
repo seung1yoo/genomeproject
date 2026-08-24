@@ -10,14 +10,14 @@ def test_inventory_detects_missing_index_duplicate_and_completeness(tmp_path: Pa
     cram = tmp_path / "S1.cram"
     cram.write_bytes(b"cram")
     (tmp_path / "S1.cram.crai").write_bytes(b"index")
-    gvcf = tmp_path / "S1.g.vcf.gz"
+    gvcf = tmp_path / "S1.gvcf.gz"
     gvcf.write_bytes(b"gvcf")
     manifest = tmp_path / "manifest.tsv"
     manifest.write_text(
         "sample_id\tdata_type\tpath\n"
         f"S1\tcram\t{cram}\n"
         f"S1\tgvcf\t{gvcf}\n"
-        f"S2\tgvcf\t{tmp_path / 'missing.g.vcf.gz'}\n",
+        f"S2\tgvcf\t{tmp_path / 'missing.gvcf.gz'}\n",
         encoding="utf-8",
     )
 

@@ -36,7 +36,9 @@ def candidate_index_paths(file_path: Path, data_type: str) -> list[Path]:
     text = str(file_path)
     if data_type == "cram" or text.lower().endswith(".cram"):
         return [Path(text + ".crai"), file_path.with_suffix(".crai")]
-    if data_type in {"vcf", "gvcf", "sv"} and text.lower().endswith((".vcf.gz", ".g.vcf.gz")):
+    if data_type in {"vcf", "gvcf", "sv"} and text.lower().endswith(
+        (".vcf.gz", ".g.vcf.gz", ".gvcf.gz")
+    ):
         return [Path(text + ".tbi"), Path(text + ".csi")]
     if text.lower().endswith(".bcf"):
         return [Path(text + ".csi")]
